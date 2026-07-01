@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title><%= title %></title>
+<link rel="stylesheet" href="/css/output.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+  .input-wrap { position: relative; }
+  .input-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; pointer-events: none; }
+  .input-wrap input { padding-left: 40px; }
+  input[type="password"], input[type="text"] {
+    width: 100%; padding: 11px 14px; border: 1.5px solid #e2e8f0;
+    border-radius: 12px; font-size: 14px; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    background: #fff; color: #0f172a;
+  }
+  input:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.1); }
+  .toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 13px; }
+  .toggle-pw:hover { color: #059669; }
+</style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+
+<div class="grid min-h-screen lg:grid-cols-2">
+
+  <!-- Left panel — branding -->
+  <div class="hidden flex-col justify-between bg-emerald-900 p-12 text-white lg:flex">
+    <div class="flex items-center gap-3">
+      <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600 text-lg font-bold shadow-sm">N</div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Trusted Nutrition</p>
+        <p class="text-sm font-bold">NutriDetect</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-4xl font-black leading-tight">
+        Nutritional Deficiency Detection System
+      </h2>
+      <p class="mt-5 text-base leading-8 text-emerald-100">
+        Administrative access to the assessment dashboard. View saved records, manage results, and monitor system activity.
+      </p>
+
+      <div class="mt-10 grid gap-4">
+        <div class="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-700">
+            <i class="fa-solid fa-chart-bar text-emerald-200 text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-sm">Assessment Dashboard</p>
+            <p class="mt-1 text-xs text-emerald-300 leading-5">View all saved assessments, scores, and nutrient findings in one place.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-700">
+            <i class="fa-solid fa-clock-rotate-left text-emerald-200 text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-sm">Assessment History</p>
+            <p class="mt-1 text-xs text-emerald-300 leading-5">Browse historical records, download PDF reports, and manage entries.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-700">
+            <i class="fa-solid fa-shield-halved text-emerald-200 text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-sm">Secure Access</p>
+            <p class="mt-1 text-xs text-emerald-300 leading-5">Session-protected admin panel. Access is restricted to authorized use only.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-xs text-emerald-500">Nutritional Deficiency Detection System · Administrative Panel</p>
+  </div>
+
+  <!-- Right panel — login form -->
+  <div class="flex items-center justify-center px-6 py-12">
+    <div class="w-full max-w-sm">
+
+      <!-- Mobile logo -->
+      <div class="mb-8 flex items-center gap-3 lg:hidden">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-700 text-lg font-bold text-white">N</div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">NutriDetect</p>
+          <p class="text-sm font-bold text-slate-800">Nutritional Deficiency Detection System</p>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <h1 class="text-2xl font-black text-slate-900">Admin login</h1>
+        <p class="mt-2 text-sm text-slate-500">Enter your admin password to access the dashboard.</p>
+      </div>
+
+      <% if (errorMessage) { %>
+      <div class="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+        <i class="fa-solid fa-circle-exclamation text-red-500 text-sm flex-shrink-0"></i>
+        <p class="text-sm font-medium text-red-700"><%= errorMessage %></p>
+      </div>
+      <% } %>
+
+      <form action="/admin/login" method="POST" class="space-y-5">
+
+        <div>
+          <label for="password" class="mb-1.5 block text-sm font-semibold text-slate-700">Admin password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" type="password" name="password" placeholder="Enter admin password" autocomplete="current-password" required />
+            <button type="button" class="toggle-pw" onclick="
+              const i = document.getElementById('password');
+              const ic = this.querySelector('i');
+              if (i.type === 'password') { i.type = 'text'; ic.className = 'fa-solid fa-eye-slash'; }
+              else { i.type = 'password'; ic.className = 'fa-solid fa-eye'; }
+            ">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit"
+          class="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-emerald-800">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Sign in to dashboard
+        </button>
+
+      </form>
+
+      <div class="mt-8 border-t border-slate-100 pt-6">
+        <a href="/" class="flex items-center gap-2 text-sm text-slate-500 transition hover:text-emerald-700">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+          Back to assessment
+        </a>
+      </div>
+
+      <p class="mt-6 text-xs text-slate-400">Authorized administrative access only. This panel is not intended for public use.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

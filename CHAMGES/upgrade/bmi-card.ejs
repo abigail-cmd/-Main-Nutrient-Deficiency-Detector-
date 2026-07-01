@@ -1,0 +1,71 @@
+<%
+/*
+  REPLACEMENT for the BMI section in result.ejs
+  Uses:  assessment.bmi, assessment.bmiCategory, assessment.bmiClassification
+*/
+const bmiCat = (assessment.bmiCategory || '').toLowerCase();
+const bmiClass = bmiCat.includes('under') ? 'underweight'
+               : bmiCat.includes('over')  ? 'overweight'
+               : bmiCat.includes('obese') ? 'obese'
+               : 'normal';
+%>
+
+<!-- ── BMI + Calorie Cards ───────────────────────────────── -->
+<section class="pb-10">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="grid gap-6 lg:grid-cols-2">
+
+      <!-- BMI Card -->
+      <div class="bmi-card">
+        <div class="bmi-card-header">
+          <div class="bmi-card-icon">⚖️</div>
+          <h3>Body Mass Index</h3>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:0;">
+          <span class="bmi-value <%= bmiClass %>"><%= assessment.bmi %></span>
+          <span class="bmi-label <%= bmiClass %>"><%= assessment.bmiCategory %></span>
+        </div>
+        <div class="bmi-scale">
+          <div class="bmi-scale-seg"></div>
+          <div class="bmi-scale-seg"></div>
+          <div class="bmi-scale-seg"></div>
+          <div class="bmi-scale-seg"></div>
+        </div>
+        <p class="bmi-hint">Underweight (&lt;18.5) · Normal (18.5–24.9) · Overweight (25–29.9) · Obese (≥30)</p>
+      </div>
+
+      <!-- Calorie Card -->
+      <div class="bmi-card">
+        <div class="bmi-card-header">
+          <div class="bmi-card-icon">🔥</div>
+          <h3>Daily Calorie Comparison</h3>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div style="background:#f8fafc;border-radius:10px;padding:12px;">
+            <p style="font-size:11px;color:#64748b;margin-bottom:4px;">Estimated need</p>
+            <p style="font-size:22px;font-weight:800;color:#0f172a;"><%= assessment.dailyCalories %> <span style="font-size:13px;font-weight:500;color:#64748b;">kcal</span></p>
+          </div>
+          <div style="background:#f8fafc;border-radius:10px;padding:12px;">
+            <p style="font-size:11px;color:#64748b;margin-bottom:4px;">Your intake</p>
+            <p style="font-size:22px;font-weight:800;color:#0f172a;"><%= assessment.currentCalorieIntake %> <span style="font-size:13px;font-weight:500;color:#64748b;">kcal</span></p>
+          </div>
+        </div>
+
+        <% if (assessment.intakeComparison) {
+             const dir = assessment.intakeComparison.direction || '';
+             const diff = assessment.intakeComparison.difference;
+             const isOver = dir.toLowerCase().includes('above') || dir.toLowerCase().includes('excess');
+           %>
+        <div style="background:<%= isOver ? '#fef2f2' : '#f0fdf4' %>;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;"><%= isOver ? '⬆️' : '⬇️' %></span>
+          <span style="font-size:13px;font-weight:600;color:<%= isOver ? '#991b1b' : '#166534' %>;">
+            <%= diff %> kcal <%= dir %> your estimated requirement
+          </span>
+        </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</section>

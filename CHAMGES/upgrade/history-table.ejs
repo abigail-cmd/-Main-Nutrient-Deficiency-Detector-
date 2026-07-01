@@ -1,0 +1,99 @@
+<%
+/*
+  REPLACEMENT for the history table in history.ejs and dashboard.ejs
+  Uses: assessments array
+  Each item: { id, fullName, age, gender, bmi, bmiCategory,
+               scoringSummary.overall.overallStatus,
+               scoringSummary.overall.overallRiskLevel,
+               createdAt }
+*/
+function statusClass(s) {
+  if (!s) return 'adequate';
+  const l = s.toLowerCase();
+  if (l.includes('severe'))   return 'severe';
+  if (l.includes('high'))     return 'severe';
+  if (l.includes('moderate')) return 'moderate';
+  if (l.includes('mild'))     return 'mild';
+  if (l.includes('low'))      return 'adequate';
+  if (l.includes('excess'))   return 'excess';
+  return 'adequate';
+}
+%>
+
+<section id="history-table" class="py-16">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="rounded-[1.5rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
+
+      <!-- Table header bar -->
+      <div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h3 style="font-size:16px;font-weight:700;color:#0f172a;">Assessment Records</h3>
+          <p style="font-size:13px;color:#64748b;margin-top:2px;"><%= assessments?.length || 0 %> stored result<%= (assessments?.length || 0) !== 1 ? 's' : '' %></p>
+        </div>
+        <a href="/" style="font-size:13px;font-weight:600;color:#059669;text-decoration:none;padding:8px 16px;background:#f0fdf4;border-radius:8px;border:1px solid #86efac;">
+          + New Assessment
+        </a>
+      </div>
+
+      <% if (!assessments || assessments.length === 0) { %>
+      <div style="padding:48px 24px;text-align:center;color:#94a3b8;">
+        <p style="font-size:24px;margin-bottom:8px;">📋</p>
+        <p style="font-size:14px;font-weight:600;color:#64748b;">No assessments saved yet</p>
+        <p style="font-size:13px;margin-top:4px;"><a href="/" style="color:#059669;">Start your first assessment →</a></p>
+      </div>
+      <% } else { %>
+      <div style="overflow-x:auto;">
+        <table class="polished-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Age / Gender</th>
+              <th>BMI</th>
+              <th>Overall Status</th>
+              <th>Risk Level</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% assessments.forEach((a, i) => {
+                 const sc = statusClass(a.scoringSummary?.overall?.overallStatus || a.scoringSummary?.overall?.overallRiskLevel);
+               %>
+            <tr>
+              <td style="color:#94a3b8;font-size:12px;"><%= i + 1 %></td>
+              <td style="font-weight:600;"><%= a.fullName || 'Unknown' %></td>
+              <td style="color:#64748b;"><%= a.age %>y · <%= a.gender %></td>
+              <td>
+                <span style="font-weight:700;"><%= a.bmi %></span>
+                <span style="font-size:11px;color:#94a3b8;margin-left:4px;"><%= a.bmiCategory %></span>
+              </td>
+              <td><span class="status-badge <%= sc %>"><%= a.scoringSummary?.overall?.overallStatus || 'N/A' %></span></td>
+              <td><span class="status-badge <%= sc %>"><%= a.scoringSummary?.overall?.overallRiskLevel || 'N/A' %></span></td>
+              <td style="color:#64748b;font-size:12px;white-space:nowrap;">
+                <%= a.createdAt ? new Date(a.createdAt).toLocaleDateString() : 'N/A' %>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;flex-wrap:nowrap;">
+                  <a href="/result/<%= a.id %>" class="tbl-btn tbl-btn-view">
+                    View
+                  </a>
+                  <a href="/report/<%= a.id %>/pdf" class="tbl-btn tbl-btn-pdf">
+                    PDF
+                  </a>
+                  <form action="/assessment/<%= a.id %>/delete" method="POST" style="margin:0;" onsubmit="return confirm('Delete this record?');">
+                    <button type="submit" class="tbl-btn tbl-btn-delete" style="border:none;cursor:pointer;">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</section>

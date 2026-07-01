@@ -1,0 +1,218 @@
+/* ============================================================
+   polish.css  —  drop this into public/css/ and link it after
+   output.css in every view's <head>
+   ============================================================ */
+
+/* ── Status colour tokens ─────────────────────────────────── */
+:root {
+  --adequate-bg:   #f0fdf4;  --adequate-border: #86efac;  --adequate-text:   #166534;
+  --mild-bg:       #fffbeb;  --mild-border:     #fcd34d;  --mild-text:       #92400e;
+  --moderate-bg:   #fff7ed;  --moderate-border: #fb923c;  --moderate-text:   #9a3412;
+  --severe-bg:     #fef2f2;  --severe-border:   #f87171;  --severe-text:     #991b1b;
+  --excess-bg:     #f5f3ff;  --excess-border:   #a78bfa;  --excess-text:     #5b21b6;
+}
+
+/* ── Nutrient status card ─────────────────────────────────── */
+.nutrient-card {
+  border-radius: 14px;
+  border: 1.5px solid;
+  padding: 18px;
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.nutrient-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.09); transform: translateY(-2px); }
+
+.nutrient-card.adequate { background: var(--adequate-bg); border-color: var(--adequate-border); }
+.nutrient-card.mild     { background: var(--mild-bg);     border-color: var(--mild-border); }
+.nutrient-card.moderate { background: var(--moderate-bg); border-color: var(--moderate-border); }
+.nutrient-card.severe   { background: var(--severe-bg);   border-color: var(--severe-border); }
+.nutrient-card.excess   { background: var(--excess-bg);   border-color: var(--excess-border); }
+
+/* status badge pill */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.status-badge.adequate { background: var(--adequate-bg); color: var(--adequate-text); border: 1px solid var(--adequate-border); }
+.status-badge.mild     { background: var(--mild-bg);     color: var(--mild-text);     border: 1px solid var(--mild-border); }
+.status-badge.moderate { background: var(--moderate-bg); color: var(--moderate-text); border: 1px solid var(--moderate-border); }
+.status-badge.severe   { background: var(--severe-bg);   color: var(--severe-text);   border: 1px solid var(--severe-border); }
+.status-badge.excess   { background: var(--excess-bg);   color: var(--excess-text);   border: 1px solid var(--excess-border); }
+
+/* icon dot inside badge */
+.status-badge::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+
+/* ── Nutrient card metrics row (intake / RDA / %) ─────────── */
+.nc-metrics {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin: 12px 0;
+}
+.nc-metric {
+  background: rgba(255,255,255,0.7); border-radius: 9px;
+  padding: 8px 10px; text-align: center;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.nc-metric-label { font-size: 10px; color: #64748b; margin-bottom: 2px; }
+.nc-metric-value { font-size: 13px; font-weight: 700; color: #0f172a; }
+.nc-metric-value.coloured.adequate { color: var(--adequate-text); }
+.nc-metric-value.coloured.mild     { color: var(--mild-text); }
+.nc-metric-value.coloured.moderate { color: var(--moderate-text); }
+.nc-metric-value.coloured.severe   { color: var(--severe-text); }
+.nc-metric-value.coloured.excess   { color: var(--excess-text); }
+
+/* ── Progress bar ─────────────────────────────────────────── */
+.nc-progress-track {
+  height: 6px; border-radius: 99px;
+  background: rgba(0,0,0,0.08); overflow: hidden; margin: 10px 0 4px;
+}
+.nc-progress-fill {
+  height: 100%; border-radius: 99px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.adequate .nc-progress-fill { background: #22c55e; }
+.mild     .nc-progress-fill { background: #f59e0b; }
+.moderate .nc-progress-fill { background: #f97316; }
+.severe   .nc-progress-fill { background: #ef4444; }
+.excess   .nc-progress-fill { background: #8b5cf6; }
+
+/* food source pills */
+.food-pill {
+  display: inline-block; padding: 2px 9px; border-radius: 999px;
+  font-size: 11px; color: #475569; background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(0,0,0,0.1); margin: 2px;
+}
+
+/* ── Form input polish ────────────────────────────────────── */
+.form-group { position: relative; }
+
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  appearance: none;
+}
+.form-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5,150,105,0.12);
+  background: #f0fdf4;
+}
+.form-input:hover:not(:focus) { border-color: #94a3b8; }
+
+/* keep existing classes working — just augment selects */
+select.form-input { cursor: pointer; }
+
+/* floating label variant (optional, applied per field) */
+.form-group.floating label {
+  position: absolute; top: 50%; left: 14px; transform: translateY(-50%);
+  font-size: 13px; color: #94a3b8; pointer-events: none;
+  transition: all 0.15s; background: transparent; padding: 0 2px;
+}
+.form-group.floating input:focus ~ label,
+.form-group.floating input:not(:placeholder-shown) ~ label {
+  top: 0; font-size: 11px; color: #059669; background: #fff;
+}
+
+/* ── Form section divider card ────────────────────────────── */
+.form-section {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+}
+.form-section-title {
+  font-size: 15px; font-weight: 700; color: #0f172a;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+}
+.form-section-title .section-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: #ecfdf5; display: flex; align-items: center; justify-content: center;
+  color: #059669; font-size: 14px; flex-shrink: 0;
+}
+.form-section p { font-size: 13px; color: #64748b; margin-bottom: 18px; }
+
+/* ── Table polish ─────────────────────────────────────────── */
+.polished-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.polished-table thead th {
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: #64748b;
+  border-bottom: 1.5px solid #e2e8f0; background: #f8fafc;
+}
+.polished-table thead th:first-child { border-radius: 10px 0 0 0; }
+.polished-table thead th:last-child  { border-radius: 0 10px 0 0; }
+.polished-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.12s;
+}
+.polished-table tbody tr:hover { background: #f8fafc; }
+.polished-table tbody td { padding: 11px 14px; color: #334155; vertical-align: middle; }
+.polished-table tbody tr:last-child td { border-bottom: none; }
+
+/* table action buttons */
+.tbl-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 600; text-decoration: none;
+  transition: background 0.13s, color 0.13s;
+}
+.tbl-btn-view   { background: #f0fdf4; color: #166534; }
+.tbl-btn-view:hover { background: #dcfce7; }
+.tbl-btn-pdf    { background: #eff6ff; color: #1e40af; }
+.tbl-btn-pdf:hover  { background: #dbeafe; }
+.tbl-btn-delete { background: #fef2f2; color: #991b1b; }
+.tbl-btn-delete:hover { background: #fee2e2; }
+
+/* ── BMI card ─────────────────────────────────────────────── */
+.bmi-card {
+  border-radius: 16px; border: 1px solid #e2e8f0;
+  background: #fff; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.bmi-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.bmi-card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: #ecfdf5; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #059669;
+}
+.bmi-card-header h3 { font-size: 14px; font-weight: 600; color: #334155; }
+.bmi-value { font-size: 36px; font-weight: 800; line-height: 1; }
+.bmi-value.underweight { color: #92400e; }
+.bmi-value.normal      { color: #166534; }
+.bmi-value.overweight  { color: #9a3412; }
+.bmi-value.obese       { color: #991b1b; }
+.bmi-label { font-size: 13px; font-weight: 600; margin-left: 8px; }
+.bmi-label.underweight { color: #92400e; }
+.bmi-label.normal      { color: #166534; }
+.bmi-label.overweight  { color: #9a3412; }
+.bmi-label.obese       { color: #991b1b; }
+.bmi-scale {
+  display: flex; margin-top: 14px; border-radius: 6px; overflow: hidden; height: 6px;
+}
+.bmi-scale-seg { flex: 1; }
+.bmi-scale-seg:nth-child(1) { background: #fde68a; }
+.bmi-scale-seg:nth-child(2) { background: #86efac; }
+.bmi-scale-seg:nth-child(3) { background: #fb923c; }
+.bmi-scale-seg:nth-child(4) { background: #f87171; }
+.bmi-hint { font-size: 11px; color: #94a3b8; margin-top: 8px; }
+
+/* ── Recommendation card ──────────────────────────────────── */
+.rec-card {
+  border-radius: 14px; border: 1px solid #e2e8f0;
+  background: #fff; padding: 18px;
+  transition: box-shadow 0.15s;
+}
+.rec-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.rec-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.rec-card-title  { font-size: 14px; font-weight: 700; color: #0f172a; }
+.rec-food-list   { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }

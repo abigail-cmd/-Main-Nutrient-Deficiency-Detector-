@@ -1,0 +1,264 @@
+<%#
+  DROP-IN REPLACEMENT for the entire <!-- Graphs --> section in result.ejs
+  Paste this in place of:
+    <section id="graphs" class="bg-white py-16"> ... </section>
+  
+  Requires Chart.js already loaded in <head> (you already have it).
+  Add Font Awesome to <head>:
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+%>
+
+<section id="graphs" class="bg-white py-16">
+  <div class="mx-auto max-w-7xl px-6">
+
+    <div class="mb-8">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">Graphical Analysis</p>
+      <h3 class="mt-2 text-3xl font-black text-slate-900">Focus nutrient charts</h3>
+      <p class="mt-2 text-slate-500 text-sm">Based on your 5 priority nutrients: Iron, Calcium, Vitamin A, Vitamin C, and Protein.</p>
+    </div>
+
+    <%
+      const focusKeys   = Object.entries(assessment.nutrientResults || {}).filter(([,v]) => v.focus);
+      const supportKeys = Object.entries(assessment.nutrientResults || {}).filter(([,v]) => !v.focus);
+
+      function statusClass(s) {
+        if (!s) return 'adequate';
+        const l = s.toLowerCase();
+        if (l.includes('deficient') || l.includes('high')) return 'severe';
+        if (l.includes('borderline') || l.includes('moderate')) return 'moderate';
+        if (l.includes('excess')) return 'excess';
+        return 'adequate';
+      }
+      function statusColor(s) {
+        const m = { severe:'#ef4444', moderate:'#f59e0b', excess:'#8b5cf6', adequate:'#22c55e' };
+        return m[statusClass(s)] || '#22c55e';
+      }
+      function statusBg(s) {
+        const m = { severe:'#fee2e2', moderate:'#fef9c3', excess:'#ede9fe', adequate:'#dcfce7' };
+        return m[statusClass(s)] || '#dcfce7';
+      }
+      function statusText(s) {
+        const m = { severe:'#991b1b', moderate:'#92400e', excess:'#5b21b6', adequate:'#166534' };
+        return m[statusClass(s)] || '#166534';
+      }
+    %>
+
+    <%# ── 1. Coverage bars ──────────────────────────────────────────────── %>
+    <div class="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+      <div class="mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-bars-progress text-teal-700 text-sm"></i>
+        <h4 class="font-bold text-slate-900 text-sm">Focus nutrient coverage</h4>
+        <span class="ml-auto text-xs text-slate-400">% of recommended daily intake</span>
+      </div>
+      <div class="space-y-3">
+        <% focusKeys.forEach(([key, n]) => {
+             const pct = Math.min(n.percentageMet || 0, 120);
+             const displayPct = n.percentageMet || 0;
+             const col = statusColor(n.status);
+             const bg  = statusBg(n.status);
+             const tc  = statusText(n.status);
+           %>
+        <div class="flex items-center gap-3">
+          <span class="w-20 flex-shrink-0 text-xs font-semibold text-slate-700"><%= n.nutrientName %></span>
+          <div class="relative flex-1 h-2.5 rounded-full bg-slate-200 overflow-hidden">
+            <div class="h-full rounded-full transition-all" style="width:<%= Math.min(pct/120*100,100) %>%;background:<%= col %>"></div>
+          </div>
+          <span class="w-10 flex-shrink-0 text-right text-xs font-bold" style="color:<%= col %>"><%= displayPct %>%</span>
+          <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold flex-shrink-0" style="background:<%= bg %>;color:<%= tc %>"><%= n.status %></span>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <%# ── 2. Summary charts row ──────────────────────────────────────────── %>
+    <div class="mb-6 grid gap-5 lg:grid-cols-2">
+
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+        <div class="mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-circle-half-stroke text-teal-700 text-sm"></i>
+          <h4 class="font-bold text-slate-900 text-sm">Status distribution</h4>
+          <span class="ml-auto text-xs text-slate-400">All tracked nutrients</span>
+        </div>
+        <div style="height:180px;position:relative;">
+          <canvas id="statusDistributionChart"></canvas>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+        <div class="mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-chart-bar text-teal-700 text-sm"></i>
+          <h4 class="font-bold text-slate-900 text-sm">Intake vs RDA</h4>
+          <span class="ml-auto text-xs text-slate-400">Focus nutrients</span>
+        </div>
+        <div style="height:180px;position:relative;">
+          <canvas id="intakeVsRdaChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <%# ── 3. Individual mini charts ─────────────────────────────────────── %>
+    <div class="mb-2">
+      <div class="mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-microscope text-teal-700 text-sm"></i>
+        <h4 class="font-bold text-slate-900 text-sm">Individual nutrient breakdown</h4>
+      </div>
+      <div class="grid gap-4" style="grid-template-columns:repeat(5,1fr)">
+        <% focusKeys.forEach(([key, n]) => {
+             const col = statusColor(n.status);
+             const bg  = statusBg(n.status);
+             const tc  = statusText(n.status);
+           %>
+        <div class="rounded-2xl border bg-white p-4" style="border-color:<%= bg %>">
+          <div class="mb-1 flex items-center justify-between gap-1">
+            <span class="text-xs font-bold text-slate-800"><%= n.nutrientName %></span>
+          </div>
+          <p class="text-[10px] text-slate-400 mb-2"><%= n.intake %> / <%= n.referenceValue %> <%= n.unit %></p>
+          <div style="height:70px;position:relative;">
+            <canvas id="mini_<%= key %>"></canvas>
+          </div>
+          <p class="mt-2 text-center text-[10px] font-bold" style="color:<%= tc %>"><%= n.percentageMet %>% of RDA</p>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<%# ════════════════════════════════════════════════════════════════════════
+    CHART SCRIPTS — place inside the existing <script> block at bottom
+    of result.ejs, replacing all existing chart code
+════════════════════════════════════════════════════════════════════════ %>
+<script>
+(function() {
+  const nr = <%- JSON.stringify(assessment.nutrientResults || {}) %>;
+  const ss = <%- JSON.stringify(assessment.scoringSummary  || {}) %>;
+
+  const STATUS_COLOR = {
+    Deficient:  '#ef4444',
+    Borderline: '#f59e0b',
+    Adequate:   '#22c55e',
+    Excess:     '#8b5cf6',
+  };
+
+  function colorForStatus(s) {
+    if (!s) return '#22c55e';
+    if (s.includes('Deficient'))  return STATUS_COLOR.Deficient;
+    if (s.includes('Borderline')) return STATUS_COLOR.Borderline;
+    if (s.includes('Excess'))     return STATUS_COLOR.Excess;
+    return STATUS_COLOR.Adequate;
+  }
+
+  const focusEntries = Object.entries(nr).filter(([,v]) => v.focus);
+  const allEntries   = Object.entries(nr);
+
+  // Chart.js global defaults
+  Chart.defaults.font.family = 'system-ui, -apple-system, sans-serif';
+  Chart.defaults.font.size   = 11;
+
+  const gridColor = 'rgba(0,0,0,0.05)';
+  const tickColor = '#94a3b8';
+
+  // ── Status distribution doughnut ──────────────────────────────────────
+  const counts = { Adequate: 0, Borderline: 0, Deficient: 0, Excess: 0 };
+  allEntries.forEach(([,v]) => {
+    if (v.status === 'Adequate')   counts.Adequate++;
+    else if (v.status === 'Borderline') counts.Borderline++;
+    else if (v.status === 'Deficient')  counts.Deficient++;
+    else if (v.status === 'Excess')     counts.Excess++;
+  });
+  new Chart(document.getElementById('statusDistributionChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(counts),
+      datasets: [{
+        data: Object.values(counts),
+        backgroundColor: ['#22c55e','#f59e0b','#ef4444','#8b5cf6'],
+        borderWidth: 0,
+        hoverOffset: 4,
+      }],
+    },
+    options: {
+      cutout: '65%',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 9, padding: 10, color: '#475569' } },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw}` } },
+      },
+    },
+  });
+
+  // ── Intake vs RDA grouped bar ─────────────────────────────────────────
+  new Chart(document.getElementById('intakeVsRdaChart'), {
+    type: 'bar',
+    data: {
+      labels: focusEntries.map(([,v]) => v.nutrientName),
+      datasets: [
+        {
+          label: 'Your intake',
+          data: focusEntries.map(([,v]) => v.intake),
+          backgroundColor: focusEntries.map(([,v]) => colorForStatus(v.status)),
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+        {
+          label: 'RDA',
+          data: focusEntries.map(([,v]) => v.referenceValue),
+          backgroundColor: 'rgba(148,163,184,0.2)',
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 9, padding: 10, color: '#475569' } },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { color: tickColor, maxTicksLimit: 5 },
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: tickColor },
+        },
+      },
+    },
+  });
+
+  // ── Individual mini bar charts ────────────────────────────────────────
+  focusEntries.forEach(([key, n]) => {
+    const el = document.getElementById(`mini_${key}`);
+    if (!el) return;
+    const col = colorForStatus(n.status);
+    new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: ['Intake', 'RDA'],
+        datasets: [{
+          data: [n.intake, n.referenceValue],
+          backgroundColor: [col, 'rgba(148,163,184,0.22)'],
+          borderRadius: 5,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, display: false },
+          x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
+        },
+      },
+    });
+  });
+
+})();
+</script>

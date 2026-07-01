@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title><%= title %></title>
+<link rel="stylesheet" href="/css/output.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+  /* Multi-step form */
+  .sf-screen{display:none}.sf-screen.active{display:block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .splash-ring{width:48px;height:48px;border-radius:50%;border:3px solid #e2e8f0;border-top-color:#059669;animation:spin .8s linear infinite;margin:0 auto}
+  /* Nutrient picker cards */
+  .np-card{border:1.5px solid #e2e8f0;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none;transition:border-color .18s,background .18s}
+  .np-card:hover{border-color:#6ee7b7;background:#f0fdf4}
+  .np-card.picked{border-color:#059669;background:#f0fdf4}
+  .np-card input[type="checkbox"]{accent-color:#059669;width:15px;height:15px;cursor:pointer;flex-shrink:0;pointer-events:none}
+  .np-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  /* Form inputs */
+  .sf-input{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;color:#0f172a;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none;box-sizing:border-box}
+  .sf-input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.1);background:#f0fdf4}
+  .sf-input:hover:not(:focus){border-color:#94a3b8}
+  /* Buttons — fixed sizing */
+  .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#059669;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:background .18s,transform .18s;text-decoration:none;white-space:nowrap;line-height:1.4}
+  .btn-primary:hover{background:#047857;transform:translateY(-1px)}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#fff;color:#374151;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:background .18s,border-color .18s;text-decoration:none;white-space:nowrap;line-height:1.4}
+  .btn-secondary:hover{background:#f8fafc;border-color:#94a3b8}
+  /* Nutrient intake rows */
+  .ni-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+  .ni-row:last-child{border-bottom:none}
+  .ni-input-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0}
+  .ni-input-wrap input{width:88px;padding:7px 9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;text-align:right;outline:none;transition:border-color .15s;color:#0f172a;background:#fff}
+  .ni-input-wrap input:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.08)}
+  .ni-unit{font-size:11px;color:#94a3b8;width:24px;flex-shrink:0}
+  /* Progress bar */
+  .prog-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:0 24px}
+  .prog-seg{flex:1;height:3px;border-radius:2px}
+  /* Responsive */
+  @media(max-width:640px){
+    .hero-grid{grid-template-columns:1fr!important}
+    .hero-side{display:none}
+    .how-grid{grid-template-columns:1fr 1fr!important}
+    .about-grid{grid-template-columns:1fr!important}
+  }
+  @media(max-width:480px){
+    .how-grid{grid-template-columns:1fr!important}
+    .np-grid{grid-template-columns:1fr 1fr!important}
+  }
+  @media(max-width:360px){
+    .np-grid{grid-template-columns:1fr!important}
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800" style="overflow-x:hidden">
+
+<%- include('partials/navbar', { page: 'home', isAdmin: isAdmin }) %>
+
+<!-- Hero -->
+<section id="home" style="background:linear-gradient(135deg,#064e3b 0%,#065f46 40%,#0f172a 100%);color:#fff;overflow:hidden;position:relative">
+  <div style="position:absolute;inset:0;opacity:.08"><div style="position:absolute;left:-60px;top:40px;width:220px;height:220px;border-radius:50%;background:#6ee7b7;filter:blur(60px)"></div><div style="position:absolute;right:0;top:0;width:280px;height:280px;border-radius:50%;background:#06b6d4;filter:blur(60px)"></div></div>
+  <div class="hero-grid" style="position:relative;max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.1fr 0.9fr;align-items:center;gap:40px;padding:64px 24px;min-height:80vh">
+    <div>
+      <span style="display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#a7f3d0;margin-bottom:20px">
+        <i class="fa-solid fa-leaf" style="color:#6ee7b7;font-size:10px"></i> Nutrition · Analysis · Guidance
+      </span>
+      <h2 style="font-size:clamp(26px,4vw,42px);font-weight:900;line-height:1.2;margin:0 0 18px">Detect nutrient deficiency and excess patterns with a reliable assessment system.</h2>
+      <p style="font-size:15px;line-height:1.8;color:#cbd5e1;margin:0 0 28px;max-width:520px">Enter your personal details and daily intake. The system calculates BMI, estimates calorie needs, and compares intake against recommended reference values.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:36px">
+        <a href="#assessment-form" class="btn-primary cta-pulse" style="padding:12px 26px;font-size:14px;border-radius:12px;background:#10b981"><i class="fa-solid fa-clipboard-list"></i>Start Assessment</a>
+        <a href="#about" class="btn-secondary" style="padding:12px 20px;font-size:14px;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">Learn More</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px"><p style="font-size:15px;font-weight:700;margin:0 0 4px">BMI + Calories</p><p style="font-size:12px;color:#94a3b8;margin:0">Body analysis & estimation</p></div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px"><p style="font-size:15px;font-weight:700;margin:0 0 4px">5 Focus Nutrients</p><p style="font-size:12px;color:#94a3b8;margin:0">Iron, Calcium, Vitamins, Protein</p></div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px"><p style="font-size:15px;font-weight:700;margin:0 0 4px">PDF Report</p><p style="font-size:12px;color:#94a3b8;margin:0">Downloadable assessment</p></div>
+      </div>
+    </div>
+    <div class="hero-side">
+      <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:16px;backdrop-filter:blur(12px)">
+        <div style="background:#fff;border-radius:18px;padding:22px;color:#0f172a">
+          <p style="font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#0d9488;margin:0 0 6px">Focus Nutrients</p>
+          <p style="font-size:16px;font-weight:800;color:#0f172a;margin:0 0 16px">5 main tracked nutrients</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="display:flex;align-items:center;gap:8px;background:#fef2f2;border-radius:10px;padding:10px"><div style="width:28px;height:28px;background:rgba(255,255,255,.7);border-radius:7px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-droplet" style="color:#ef4444;font-size:11px"></i></div><div><p style="font-size:11px;font-weight:600;color:#0f172a;margin:0">Iron</p><p style="font-size:10px;color:#64748b;margin:0">mg/day</p></div></div>
+            <div style="display:flex;align-items:center;gap:8px;background:#eff6ff;border-radius:10px;padding:10px"><div style="width:28px;height:28px;background:rgba(255,255,255,.7);border-radius:7px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-bone" style="color:#3b82f6;font-size:11px"></i></div><div><p style="font-size:11px;font-weight:600;color:#0f172a;margin:0">Calcium</p><p style="font-size:10px;color:#64748b;margin:0">mg/day</p></div></div>
+            <div style="display:flex;align-items:center;gap:8px;background:#fffbeb;border-radius:10px;padding:10px"><div style="width:28px;height:28px;background:rgba(255,255,255,.7);border-radius:7px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-eye" style="color:#f59e0b;font-size:11px"></i></div><div><p style="font-size:11px;font-weight:600;color:#0f172a;margin:0">Vitamin A</p><p style="font-size:10px;color:#64748b;margin:0">µg/day</p></div></div>
+            <div style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border-radius:10px;padding:10px"><div style="width:28px;height:28px;background:rgba(255,255,255,.7);border-radius:7px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-shield-virus" style="color:#22c55e;font-size:11px"></i></div><div><p style="font-size:11px;font-weight:600;color:#0f172a;margin:0">Vitamin C</p><p style="font-size:10px;color:#64748b;margin:0">mg/day</p></div></div>
+            <div style="display:flex;align-items:center;gap:8px;background:#f5f3ff;border-radius:10px;padding:10px;grid-column:span 2"><div style="width:28px;height:28px;background:rgba(255,255,255,.7);border-radius:7px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-dumbbell" style="color:#8b5cf6;font-size:11px"></i></div><div><p style="font-size:11px;font-weight:600;color:#0f172a;margin:0">Protein</p><p style="font-size:10px;color:#64748b;margin:0">g/day</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about" style="background:#fff;padding:72px 0">
+  <div class="about-grid" style="max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+    <div>
+      <p style="font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#059669;margin:0 0 12px">About This System</p>
+      <h3 style="font-size:clamp(22px,3vw,32px);font-weight:900;color:#0f172a;margin:0 0 18px;line-height:1.3">Understanding your nutrient balance is the first step to better health decisions.</h3>
+      <p style="font-size:14px;line-height:1.9;color:#475569;margin:0">Nutritional deficiency occurs when the body does not receive enough essential nutrients. This system evaluates both deficiency and excess — because too much of certain nutrients can also be a concern. Results are based on age- and gender-specific recommended daily allowances.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:flex-start;gap:14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:16px;padding:18px"><div style="width:36px;height:36px;background:#dcfce7;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-ruler" style="color:#059669;font-size:13px"></i></div><div><p style="font-size:13px;font-weight:700;color:#065f46;margin:0 0 4px">Reference-based evaluation</p><p style="font-size:12px;line-height:1.7;color:#475569;margin:0">Intake values are compared with age- and gender-specific RDA values to estimate adequacy.</p></div></div>
+      <div style="display:flex;align-items:flex-start;gap:14px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:16px;padding:18px"><div style="width:36px;height:36px;background:#ccfbf1;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-triangle-exclamation" style="color:#0d9488;font-size:13px"></i></div><div><p style="font-size:13px;font-weight:700;color:#0f766e;margin:0 0 4px">Structured risk classification</p><p style="font-size:12px;line-height:1.7;color:#475569;margin:0">Each nutrient is classified into Deficient, Borderline, Adequate, or Excess with a risk level score.</p></div></div>
+      <div style="display:flex;align-items:flex-start;gap:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:18px"><div style="width:36px;height:36px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-lightbulb" style="color:#64748b;font-size:13px"></i></div><div><p style="font-size:13px;font-weight:700;color:#0f172a;margin:0 0 4px">Practical recommendations</p><p style="font-size:12px;line-height:1.7;color:#475569;margin:0">Food suggestions and dietary guidance are generated based on detected nutritional concerns.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="process" style="background:#f8fafc;padding:72px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+    <div style="text-align:center;max-width:600px;margin:0 auto 48px">
+      <p style="font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#059669;margin:0 0 10px">How It Works</p>
+      <h3 style="font-size:clamp(22px,3vw,32px);font-weight:900;color:#0f172a;margin:0;line-height:1.3">Four steps from your data to your nutritional insight.</h3>
+    </div>
+    <div class="how-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div class="anim-fade-up" style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:22px;transition:transform .2s,border-color .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#86efac'" onmouseout="this.style.transform='';this.style.borderColor='#e2e8f0'"><div style="width:44px;height:44px;background:#059669;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i class="fa-solid fa-check-square" style="color:#fff;font-size:16px"></i></div><p style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 8px">Choose nutrients</p><p style="font-size:12px;line-height:1.7;color:#64748b;margin:0">Select which of the 5 focus nutrients to track. Add supporting nutrients optionally.</p></div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:22px;transition:transform .2s,border-color .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#86efac'" onmouseout="this.style.transform='';this.style.borderColor='#e2e8f0'"><div style="width:44px;height:44px;background:#0f766e;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i class="fa-solid fa-user" style="color:#fff;font-size:16px"></i></div><p style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 8px">Enter your info</p><p style="font-size:12px;line-height:1.7;color:#64748b;margin:0">Provide personal details used for BMI and calorie estimation.</p></div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:22px;transition:transform .2s,border-color .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#86efac'" onmouseout="this.style.transform='';this.style.borderColor='#e2e8f0'"><div style="width:44px;height:44px;background:#0e7490;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i class="fa-solid fa-utensils" style="color:#fff;font-size:16px"></i></div><p style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 8px">Log your intake</p><p style="font-size:12px;line-height:1.7;color:#64748b;margin:0">Enter daily intake values for your selected nutrients only.</p></div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:22px;transition:transform .2s,border-color .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#86efac'" onmouseout="this.style.transform='';this.style.borderColor='#e2e8f0'"><div style="width:44px;height:44px;background:#1e293b;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px"><i class="fa-solid fa-chart-pie" style="color:#fff;font-size:16px"></i></div><p style="font-size:14px;font-weight:700;color:#0f172a;margin:0 0 8px">Get your results</p><p style="font-size:12px;line-height:1.7;color:#64748b;margin:0">Receive scored results, charts, and tailored food recommendations.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Assessment Form -->
+<section id="assessment-form" style="background:linear-gradient(135deg,#f0fdf4 0%,#fff 50%,#f0fdfa 100%);padding:72px 0">
+  <div style="max-width:740px;margin:0 auto;padding:0 24px">
+    <div style="text-align:center;margin-bottom:36px">
+      <p style="font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#0d9488;margin:0 0 10px">Assessment</p>
+      <h3 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0f172a;margin:0 0 10px">Start your nutritional assessment</h3>
+      <p style="font-size:14px;color:#64748b;margin:0">Choose your nutrients, fill in your details, and get your results.</p>
+    </div>
+
+    <% if (errorMessage) { %>
+    <div style="display:flex;align-items:center;gap:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px 16px;margin-bottom:20px">
+      <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;flex-shrink:0"></i>
+      <p style="font-size:13px;font-weight:500;color:#991b1b;margin:0"><%= errorMessage %></p>
+    </div>
+    <% } %>
+
+    <div style="background:#fff;border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 8px 32px rgba(0,0,0,0.07);overflow:hidden">
+
+      <!-- SPLASH -->
+      <div id="sf-splash" class="sf-screen active" style="padding:60px 24px;text-align:center">
+        <div class="splash-ring" style="margin-bottom:18px"></div>
+        <p style="font-size:16px;font-weight:800;color:#0f172a;margin:0 0 6px">Preparing your assessment</p>
+        <p style="font-size:13px;color:#64748b;margin:0">Setting up your nutrition tracker…</p>
+      </div>
+
+      <!-- STEP 0: PICK NUTRIENTS -->
+      <div id="sf-pick" class="sf-screen" style="padding:28px 28px 24px">
+        <div style="margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+            <i class="fa-solid fa-list-check" style="color:#0d9488;font-size:12px"></i>
+            <p style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#0d9488;margin:0">Step 0 of 2</p>
+          </div>
+          <h4 style="font-size:20px;font-weight:800;color:#0f172a;margin:0 0 6px">Choose your nutrients</h4>
+          <p style="font-size:13px;color:#64748b;margin:0">Select at least one focus nutrient. Supporting nutrients are optional and won't appear in graphs.</p>
+        </div>
+
+        <div id="pick-warn" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#991b1b">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Please select at least one focus nutrient to continue.
+        </div>
+
+        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#374151;margin:0 0 10px">Focus nutrients</p>
+        <div class="np-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px">
+          <label class="np-card picked" data-key="iron"><input type="checkbox" checked><div class="np-icon" style="background:#fef2f2"><i class="fa-solid fa-droplet" style="color:#ef4444"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Iron</div><div style="font-size:10px;color:#94a3b8">mg/day</div></div></label>
+          <label class="np-card picked" data-key="calcium"><input type="checkbox" checked><div class="np-icon" style="background:#eff6ff"><i class="fa-solid fa-bone" style="color:#3b82f6"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Calcium</div><div style="font-size:10px;color:#94a3b8">mg/day</div></div></label>
+          <label class="np-card picked" data-key="vitaminA"><input type="checkbox" checked><div class="np-icon" style="background:#fffbeb"><i class="fa-solid fa-eye" style="color:#f59e0b"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Vitamin A</div><div style="font-size:10px;color:#94a3b8">µg/day</div></div></label>
+          <label class="np-card picked" data-key="vitaminC"><input type="checkbox" checked><div class="np-icon" style="background:#f0fdf4"><i class="fa-solid fa-shield-virus" style="color:#22c55e"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Vitamin C</div><div style="font-size:10px;color:#94a3b8">mg/day</div></div></label>
+          <label class="np-card picked" data-key="protein"><input type="checkbox" checked><div class="np-icon" style="background:#f5f3ff"><i class="fa-solid fa-dumbbell" style="color:#8b5cf6"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Protein</div><div style="font-size:10px;color:#94a3b8">g/day</div></div></label>
+        </div>
+
+        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin:0 0 10px;padding-top:6px;border-top:1px solid #f1f5f9">Supporting nutrients <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional — results only, no graphs)</span></p>
+        <div class="np-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:24px">
+          <label class="np-card" data-key="magnesium"><input type="checkbox"><div class="np-icon" style="background:#f0fdf4"><i class="fa-solid fa-leaf" style="color:#22c55e"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Magnesium</div><div style="font-size:10px;color:#94a3b8">mg/day</div></div></label>
+          <label class="np-card" data-key="zinc"><input type="checkbox"><div class="np-icon" style="background:#fef9c3"><i class="fa-solid fa-bolt" style="color:#eab308"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Zinc</div><div style="font-size:10px;color:#94a3b8">mg/day</div></div></label>
+          <label class="np-card" data-key="fiber"><input type="checkbox"><div class="np-icon" style="background:#fdf4ff"><i class="fa-solid fa-wheat-awn" style="color:#a855f7"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Fiber</div><div style="font-size:10px;color:#94a3b8">g/day</div></div></label>
+          <label class="np-card" data-key="fat"><input type="checkbox"><div class="np-icon" style="background:#fff7ed"><i class="fa-solid fa-fire" style="color:#f97316"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Fat</div><div style="font-size:10px;color:#94a3b8">g/day</div></div></label>
+          <label class="np-card" data-key="carbohydrates"><input type="checkbox"><div class="np-icon" style="background:#f0fdf4"><i class="fa-solid fa-bread-slice" style="color:#10b981"></i></div><div><div style="font-size:12px;font-weight:600;color:#0f172a">Carbs</div><div style="font-size:10px;color:#94a3b8">g/day</div></div></label>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end">
+          <button onclick="goStep1()" class="btn-primary">Continue <i class="fa-solid fa-arrow-right" style="font-size:11px"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 1: PERSONAL INFO -->
+      <div id="sf-step1" class="sf-screen" style="padding:28px">
+        <div class="prog-bar" style="padding:0;margin-bottom:20px">
+          <div class="prog-seg" style="background:#059669"></div>
+          <div class="prog-seg" style="background:#e2e8f0"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+          <i class="fa-solid fa-user" style="color:#0d9488;font-size:12px"></i>
+          <p style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#0d9488;margin:0">Step 1 of 2 — Personal Information</p>
+        </div>
+        <p style="font-size:13px;color:#64748b;margin:0 0 20px">Used for BMI calculation and calorie estimation.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+          <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Full Name</label><input id="s1_fullName" type="text" class="sf-input" placeholder="e.g. Amara Okafor" value="<%= oldInput?.fullName||'' %>"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Age</label><input id="s1_age" type="number" class="sf-input" placeholder="25" min="1" max="120" value="<%= oldInput?.age||'' %>"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Gender</label><select id="s1_gender" class="sf-input"><option value="">Select gender</option><option value="male" <%=(oldInput?.gender==='male')?'selected':''%>>Male</option><option value="female" <%=(oldInput?.gender==='female')?'selected':''%>>Female</option></select></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Activity Level</label><select id="s1_activityLevel" class="sf-input"><option value="">Select level</option><option value="sedentary" <%=(oldInput?.activityLevel==='sedentary')?'selected':''%>>Sedentary</option><option value="lightly_active" <%=(oldInput?.activityLevel==='lightly_active')?'selected':''%>>Lightly Active</option><option value="moderately_active" <%=(oldInput?.activityLevel==='moderately_active')?'selected':''%>>Moderately Active</option><option value="very_active" <%=(oldInput?.activityLevel==='very_active')?'selected':''%>>Very Active</option><option value="extra_active" <%=(oldInput?.activityLevel==='extra_active')?'selected':''%>>Extra Active</option></select></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Weight <span style="font-weight:400;color:#94a3b8">(kg)</span></label><input id="s1_weight" type="number" step="0.1" class="sf-input" placeholder="70" value="<%= oldInput?.weight||'' %>"></div>
+          <div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Height <span style="font-weight:400;color:#94a3b8">(cm)</span></label><input id="s1_height" type="number" step="0.1" class="sf-input" placeholder="170" value="<%= oldInput?.height||'' %>"></div>
+        </div>
+        <div style="margin-bottom:22px"><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">Current Daily Calorie Intake <span style="font-weight:400;color:#94a3b8">(kcal)</span></label><input id="s1_calories" type="number" step="1" class="sf-input" style="max-width:260px" placeholder="e.g. 1800" value="<%= oldInput?.currentCalorieIntake||'' %>"></div>
+
+        <div style="display:flex;gap:10px">
+          <button onclick="goScreen('sf-pick')" class="btn-secondary"><i class="fa-solid fa-arrow-left" style="font-size:11px"></i> Back</button>
+          <button onclick="goStep2()" class="btn-primary" style="flex:1">Next: Nutrient Intake <i class="fa-solid fa-arrow-right" style="font-size:11px"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 2: NUTRIENT INTAKE -->
+      <form id="sf-step2" class="sf-screen" style="padding:28px" action="/analyze" method="POST">
+        <input type="hidden" name="fullName" id="h_fullName">
+        <input type="hidden" name="age" id="h_age">
+        <input type="hidden" name="gender" id="h_gender">
+        <input type="hidden" name="activityLevel" id="h_activityLevel">
+        <input type="hidden" name="weight" id="h_weight">
+        <input type="hidden" name="height" id="h_height">
+        <input type="hidden" name="currentCalorieIntake" id="h_currentCalorieIntake">
+        <input type="hidden" name="selectedNutrients" id="h_selectedNutrients">
+
+        <div class="prog-bar" style="padding:0;margin-bottom:20px">
+          <div class="prog-seg" style="background:#059669"></div>
+          <div class="prog-seg" style="background:#059669"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+          <i class="fa-solid fa-utensils" style="color:#0d9488;font-size:12px"></i>
+          <p style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#0d9488;margin:0">Step 2 of 2 — Daily Nutrient Intake</p>
+        </div>
+        <p style="font-size:13px;color:#64748b;margin:0 0 16px">Enter your average daily intake for each selected nutrient.</p>
+
+        <div id="selected-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
+        <div id="nutrient-rows"></div>
+
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="button" onclick="goScreen('sf-step1')" class="btn-secondary"><i class="fa-solid fa-arrow-left" style="font-size:11px"></i> Back</button>
+          <button type="submit" id="submit-btn" class="btn-primary" style="flex:1"><i class="fa-solid fa-magnifying-glass-chart" style="font-size:11px"></i> Analyse Deficiencies</button>
+        </div>
+        <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:14px">Results are compared against age- and gender-specific reference values.</p>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<script>
+const NUTRIENT_META={iron:{name:'Iron',unit:'mg',rda:'8–15 mg/day',ph:'8'},calcium:{name:'Calcium',unit:'mg',rda:'1000–1300 mg/day',ph:'1000'},vitaminA:{name:'Vitamin A',unit:'µg',rda:'600–900 µg/day',ph:'700'},vitaminC:{name:'Vitamin C',unit:'mg',rda:'45–90 mg/day',ph:'60'},protein:{name:'Protein',unit:'g',rda:'34–56 g/day',ph:'50'},magnesium:{name:'Magnesium',unit:'mg',rda:'240–400 mg/day',ph:'300'},zinc:{name:'Zinc',unit:'mg',rda:'8–11 mg/day',ph:'9'},fiber:{name:'Fiber',unit:'g',rda:'26–38 g/day',ph:'30'},fat:{name:'Fat',unit:'g',rda:'~65 g/day',ph:'65'},carbohydrates:{name:'Carbohydrates',unit:'g',rda:'~130 g/day',ph:'200'}};
+
+document.querySelectorAll('.np-card').forEach(c=>{c.addEventListener('click',()=>{const cb=c.querySelector('input[type="checkbox"]');cb.checked=!cb.checked;c.classList.toggle('picked',cb.checked)})});
+function getSel(){return[...document.querySelectorAll('.np-card.picked')].map(c=>c.dataset.key)}
+function getFocusSel(){return[...document.querySelectorAll('.np-card.picked')].filter(c=>['iron','calcium','vitaminA','vitaminC','protein'].includes(c.dataset.key)).map(c=>c.dataset.key)}
+
+function goScreen(id){document.querySelectorAll('.sf-screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('assessment-form').scrollIntoView({behavior:'smooth',block:'start'})}
+setTimeout(()=>goScreen('sf-pick'),1400);
+
+function goStep1(){
+  if(!getFocusSel().length){document.getElementById('pick-warn').style.display='block';return}
+  document.getElementById('pick-warn').style.display='none';
+  goScreen('sf-step1');
+}
+
+function goStep2(){
+  const req=['s1_fullName','s1_age','s1_gender','s1_activityLevel','s1_weight','s1_height','s1_calories'];
+  let ok=true;
+  req.forEach(id=>{const el=document.getElementById(id);if(!el.value){el.style.borderColor='#f87171';ok=false}else el.style.borderColor=''});
+  if(!ok)return;
+  const sel=getSel();
+  document.getElementById('selected-chips').innerHTML=sel.map(k=>`<span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #86efac;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;color:#166534">${NUTRIENT_META[k].name}</span>`).join('');
+  document.getElementById('nutrient-rows').innerHTML=sel.map(k=>`<div class="ni-row"><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#0f172a">${NUTRIENT_META[k].name}</div><div style="font-size:11px;color:#94a3b8;margin-top:2px">RDA: ${NUTRIENT_META[k].rda}</div></div><div class="ni-input-wrap"><input type="number" step="0.1" min="0" name="${k}" placeholder="${NUTRIENT_META[k].ph}" value="0"><span class="ni-unit">${NUTRIENT_META[k].unit}</span></div></div>`).join('');
+  // Send 0 for all unselected nutrients so backend gets them
+  const all=Object.keys(NUTRIENT_META);
+  const notSel=all.filter(k=>!sel.includes(k));
+  const extra=document.createElement('div');
+  extra.innerHTML=notSel.map(k=>`<input type="hidden" name="${k}" value="0">`).join('');
+  document.getElementById('nutrient-rows').appendChild(extra);
+  goScreen('sf-step2');
+}
+
+document.getElementById('sf-step2').addEventListener('submit',function(){
+  document.getElementById('h_fullName').value=document.getElementById('s1_fullName').value;
+  document.getElementById('h_age').value=document.getElementById('s1_age').value;
+  document.getElementById('h_gender').value=document.getElementById('s1_gender').value;
+  document.getElementById('h_activityLevel').value=document.getElementById('s1_activityLevel').value;
+  document.getElementById('h_weight').value=document.getElementById('s1_weight').value;
+  document.getElementById('h_height').value=document.getElementById('s1_height').value;
+  document.getElementById('h_currentCalorieIntake').value=document.getElementById('s1_calories').value;
+  document.getElementById('h_selectedNutrients').value=getSel().join(',');
+  const btn=document.getElementById('submit-btn');btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin" style="font-size:11px"></i> Analysing…';
+});
+</script>
+<script>
+(function(){
+  const els = document.querySelectorAll('.anim-fade-up, .anim-scale');
+  if (!els.length) return;
+  const obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(function(el){ obs.observe(el); });
+})();
+</script>
+</body>
+</html>

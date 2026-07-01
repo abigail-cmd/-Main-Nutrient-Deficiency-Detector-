@@ -1,0 +1,92 @@
+<%# Shared footer partial %>
+<footer style="background:#020617;padding:48px 0 0;color:#94a3b8;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;padding-bottom:40px;">
+
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="width:36px;height:36px;background:#059669;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;">N</div>
+          <p style="font-size:13px;font-weight:700;color:#fff;margin:0;">NutriDetect</p>
+        </div>
+        <p style="font-size:12px;line-height:1.8;margin:0;">A rule-based nutritional assessment platform for intake comparison, deficiency detection, and dietary guidance.</p>
+      </div>
+
+      <div>
+        <p style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:12px;">Quick Links</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="/" style="font-size:13px;color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .15s;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='#94a3b8'"><i class="fa-solid fa-house" style="font-size:11px;width:14px;"></i>Home</a>
+          <a href="/#about" style="font-size:13px;color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .15s;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='#94a3b8'"><i class="fa-solid fa-circle-info" style="font-size:11px;width:14px;"></i>About</a>
+          <a href="/#process" style="font-size:13px;color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .15s;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='#94a3b8'"><i class="fa-solid fa-list-ol" style="font-size:11px;width:14px;"></i>How It Works</a>
+          <a href="/#assessment-form" style="font-size:13px;color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .15s;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='#94a3b8'"><i class="fa-solid fa-clipboard-list" style="font-size:11px;width:14px;"></i>Start Assessment</a>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:12px;">System Scope</p>
+        <p style="font-size:12px;line-height:1.8;margin:0 0 10px;">Focus nutrients: Iron, Calcium, Vitamin A, Vitamin C, Protein.</p>
+        <p style="font-size:12px;line-height:1.8;margin:0;">Supporting: Magnesium, Zinc, Fiber, Fat, Carbohydrates.</p>
+      </div>
+
+      <div>
+        <p style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:12px;">Disclaimer</p>
+        <p style="font-size:12px;line-height:1.8;margin:0;">This system is an educational tool only. Results are not a substitute for professional medical or dietary advice.</p>
+      </div>
+
+      <div>
+        <p style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:12px;">Connect</p>
+        <a href="mailto:abigailelaho@gmail.com" style="font-size:13px;color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:7px;margin-bottom:10px;transition:color .15s;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='#94a3b8'">
+          <i class="fa-solid fa-envelope" style="font-size:11px;width:14px;"></i>abigailelaho@gmail.com
+        </a>
+        <a href="https://www.who.int/health-topics/nutrition" target="_blank" rel="noopener noreferrer" style="font-size:13px;color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .15s;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='#94a3b8'">
+          <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;width:14px;"></i>WHO Nutrition Guidelines
+        </a>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #1e293b;padding:20px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <p style="font-size:12px;margin:0;">Educational nutritional analysis system &copy; <%= new Date().getFullYear() %></p>
+      <p style="font-size:12px;margin:0;display:flex;align-items:center;gap:6px;">
+        <i class="fa-solid fa-code" style="color:#059669;font-size:11px;"></i>
+        Built by <strong style="color:#fff;margin-left:3px;">Abigail Elaho</strong>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top button -->
+<button id="backToTopBtn" aria-label="Back to top" style="
+  position:fixed; bottom:24px; right:24px; z-index:60;
+  width:44px; height:44px; border-radius:50%;
+  background:#059669; color:#fff; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 18px rgba(5,150,105,.35);
+  opacity:0; visibility:hidden; transform:translateY(12px);
+  transition:opacity .25s, transform .25s, visibility .25s, background .2s;
+">
+  <i class="fa-solid fa-arrow-up" style="font-size:15px;"></i>
+</button>
+
+<script>
+(function(){
+  const btn = document.getElementById('backToTopBtn');
+  if (!btn) return;
+  function toggleBtn(){
+    if (window.scrollY > 360) {
+      btn.style.opacity = '1';
+      btn.style.visibility = 'visible';
+      btn.style.transform = 'translateY(0)';
+    } else {
+      btn.style.opacity = '0';
+      btn.style.visibility = 'hidden';
+      btn.style.transform = 'translateY(12px)';
+    }
+  }
+  window.addEventListener('scroll', toggleBtn, { passive: true });
+  toggleBtn();
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  btn.addEventListener('mouseenter', function(){ btn.style.background = '#047857'; });
+  btn.addEventListener('mouseleave', function(){ btn.style.background = '#059669'; });
+})();
+</script>
