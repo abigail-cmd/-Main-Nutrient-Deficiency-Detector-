@@ -1,4 +1,5 @@
 const PDFDocument = require("pdfkit");
+const { getNutrientInfo, RDA_EXPLAINER } = require("../rules/nutrientInfo");
 
 function generateAssessmentPdf(res, assessment) {
   const doc = new PDFDocument({ size: "A4", margin: 0, bufferPages: true });
@@ -462,6 +463,49 @@ function generateAssessmentPdf(res, assessment) {
          .text(advice, MARGIN + 14, aY, { width: CONTENT_W - 14 });
       doc.moveDown(0.4);
     });
+  }
+
+  // ── Nutrient Reference Guide (why each nutrient matters + food examples) ──
+  const reportedNutrients = Object.values(assessment.nutrientResults || {});
+  if (reportedNutrients.length > 0) {
+    doc.addPage();
+    drawPageHeader();
+    sectionHeading("Nutrient Reference Guide", "Why each nutrient matters, and everyday food examples");
+
+    doc.font("Helvetica").fontSize(8).fillColor(C.muted)
+       .text(RDA_EXPLAINER, MARGIN, doc.y, { width: CONTENT_W });
+    doc.moveDown(0.8);
+
+    reportedNutrients.forEach(n => {
+      const info = getNutrientInfo(n.nutrientKey);
+      if (!info) return;
+
+      needsPage(70);
+      const blockY = doc.y;
+
+      doc.font("Helvetica-Bold").fontSize(10).fillColor(C.slate)
+         .text(safe(n.nutrientName), MARGIN, blockY);
+
+      doc.font("Helvetica").fontSize(8.5).fillColor(C.muted)
+         .text(info.why, MARGIN, doc.y + 2, { width: CONTENT_W });
+
+      doc.moveDown(0.3);
+      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(C.greenMid)
+         .text("Everyday reference amounts:", MARGIN, doc.y);
+      doc.font("Helvetica").fontSize(8).fillColor(C.muted);
+
+      info.examples.forEach(ex => {
+        needsPage(14);
+        doc.text(`•  ${ex.food}  —  ${ex.amount}`, MARGIN + 8, doc.y);
+      });
+
+      doc.moveDown(0.6);
+      rule();
+    });
+
+    doc.font("Helvetica-Oblique").fontSize(7).fillColor(C.muted)
+       .text("Food reference amounts are approximate, common values intended to help estimate intake — not for precise clinical use.",
+             MARGIN, doc.y, { width: CONTENT_W });
   }
 
   // ── Finalize ─────────────────────────────────────────────────────────────

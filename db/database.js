@@ -84,10 +84,16 @@ function saveAssessment(data) {
         calorieComparison,
         nutrientResults,
         scoringSummary,
-        recommendationSummary
+        recommendationSummary,
+        createdAt
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+
+    // Real form submissions never set data.createdAt, so this defaults to
+    // right now — identical to relying on the column's DEFAULT. A seed
+    // script can optionally pass a specific date to backdate test records.
+    const createdAt = data.createdAt || new Date().toISOString();
 
     const values = [
       data.fullName,
@@ -106,6 +112,7 @@ function saveAssessment(data) {
       JSON.stringify(data.nutrientResults || {}),
       JSON.stringify(data.scoringSummary || {}),
       JSON.stringify(data.recommendationSummary || {}),
+      createdAt,
     ];
 
     db.run(query, values, function (err) {

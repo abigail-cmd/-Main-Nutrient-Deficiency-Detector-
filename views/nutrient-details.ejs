@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/output.css" />
+  <link rel="stylesheet" href="/css/polish.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body class="bg-slate-50 text-slate-800" style="overflow-x:hidden">
+
+  <%- include('partials/navbar', { page: '', isAdmin: typeof isAdmin !== 'undefined' ? isAdmin : false }) %>
+
+  <%
+    function statusClass(s) {
+      if (!s) return 'adequate';
+      const l = s.toLowerCase();
+      if (l.includes('deficient'))  return 'severe';
+      if (l.includes('borderline')) return 'moderate';
+      if (l.includes('excess'))     return 'excess';
+      return 'adequate';
+    }
+    function statusColor(s) {
+      const m = { severe: '#ef4444', moderate: '#f59e0b', excess: '#8b5cf6', adequate: '#22c55e' };
+      return m[statusClass(s)] || '#22c55e';
+    }
+    const sc  = statusClass(nutrientData.status);
+    const col = statusColor(nutrientData.status);
+    const pct = Math.min(nutrientData.percentageMet || 0, 150);
+  %>
+
+  <section class="pb-16" style="padding-top:48px">
+    <div class="mx-auto max-w-3xl px-6">
+
+      <a href="/result/<%= assessment.id %>" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#059669;text-decoration:none;margin-bottom:24px">
+        <i class="fa-solid fa-arrow-left"></i> Back to results
+      </a>
+
+      <div class="anim-fade-up nutrient-card <%= sc %>" style="padding:28px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <h1 style="font-size:26px;font-weight:800;color:#0f172a;margin:0 0 6px"><%= nutrientData.nutrientName %></h1>
+            <span class="status-badge <%= sc %>">● <%= nutrientData.status %></span>
+          </div>
+          <div style="text-align:right">
+            <p style="font-size:32px;font-weight:800;color:<%= col %>;margin:0"><%= nutrientData.percentageMet %>%</p>
+            <p style="font-size:12px;color:#94a3b8;margin:0">of daily requirement</p>
+          </div>
+        </div>
+
+        <div class="nc-progress-track" style="margin-top:18px">
+          <div class="nc-progress-fill" style="width:<%= Math.min(pct,100) %>%;background:<%= col %>"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
+            <p style="font-size:11px;color:#94a3b8;margin:0 0 4px">Your Intake</p>
+            <p style="font-size:16px;font-weight:700;color:#0f172a;margin:0"><%= nutrientData.intake %> <span style="font-size:12px;font-weight:500;color:#64748b"><%= nutrientData.unit %></span></p>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
+            <p style="font-size:11px;color:#94a3b8;margin:0 0 4px">Recommended (RDA)</p>
+            <p style="font-size:16px;font-weight:700;color:#0f172a;margin:0"><%= nutrientData.referenceValue %> <span style="font-size:12px;font-weight:500;color:#64748b"><%= nutrientData.unit %></span></p>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center">
+            <p style="font-size:11px;color:#94a3b8;margin:0 0 4px">Difference</p>
+            <p style="font-size:16px;font-weight:700;color:#0f172a;margin:0"><%= nutrientData.difference %> <span style="font-size:12px;font-weight:500;color:#64748b"><%= nutrientData.unit %> <%= nutrientData.differenceDirection %></span></p>
+          </div>
+        </div>
+
+        <% if (typeof statusExplanation !== 'undefined' && statusExplanation) { %>
+        <div style="margin-top:16px;background:#f8fafc;border-radius:10px;padding:12px 14px">
+          <p style="font-size:12.5px;line-height:1.7;color:#475569;margin:0"><strong style="color:#0f172a">What "<%= nutrientData.status %>" means:</strong> <%= statusExplanation %></p>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (typeof nutrientInfo !== 'undefined' && nutrientInfo) { %>
+      <div class="anim-fade-up rec-card" style="margin-bottom:24px">
+        <div class="rec-card-header">
+          <p class="rec-card-title"><i class="fa-solid fa-circle-info" style="color:#0d9488;margin-right:6px"></i>Why <%= nutrientData.nutrientName %> matters</p>
+        </div>
+        <p style="font-size:13.5px;line-height:1.8;color:#475569;margin:0"><%= nutrientInfo.why %></p>
+      </div>
+
+      <div class="anim-fade-up rec-card" style="margin-bottom:24px">
+        <div class="rec-card-header">
+          <p class="rec-card-title"><i class="fa-solid fa-utensils" style="color:#059669;margin-right:6px"></i>Not sure how much you're eating? Here's a reference</p>
+        </div>
+        <p style="font-size:12px;color:#94a3b8;margin:0 0 12px">Approximate values for common foods, to help you estimate your own intake next time.</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <% nutrientInfo.examples.forEach(ex => { %>
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border-radius:8px;padding:10px 14px">
+            <span style="font-size:13px;color:#334155"><%= ex.food %></span>
+            <span style="font-size:13px;font-weight:700;color:#0f172a"><%= ex.amount %></span>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (typeof recommendationData !== 'undefined' && recommendationData) { %>
+      <div class="anim-fade-up rec-card" style="margin-bottom:24px">
+        <div class="rec-card-header">
+          <p class="rec-card-title"><i class="fa-solid fa-lightbulb" style="color:#f59e0b;margin-right:6px"></i>Recommendation</p>
+        </div>
+        <p style="font-size:13.5px;line-height:1.8;color:#475569;margin:0 0 12px"><%= recommendationData.advice %></p>
+        <% if (recommendationData.recommendedFoods && recommendationData.recommendedFoods.length) { %>
+        <div class="rec-food-list">
+          <% recommendationData.recommendedFoods.forEach(tip => { %>
+            <span style="display:block;font-size:12.5px;line-height:1.7;color:#334155;background:#f0fdf4;border-radius:8px;padding:8px 12px;margin-bottom:6px"><i class="fa-solid fa-check" style="color:#059669;margin-right:6px"></i><%= tip %></span>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <a href="/result/<%= assessment.id %>" style="display:flex;align-items:center;justify-content:center;gap:7px;background:#fff;color:#374151;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;text-decoration:none">
+        <i class="fa-solid fa-arrow-left"></i> Back to full results
+      </a>
+
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+  <script src="/js/animations.js" defer></script>
+</body>
+</html>

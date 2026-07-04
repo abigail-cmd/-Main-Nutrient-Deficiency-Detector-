@@ -16,6 +16,7 @@ const {
 } = require("../db/database");
 const { generateAssessmentPdf } = require("../utils/pdfReport");
 const { requireAdminAccess } = require("../middleware/auth");
+const { getNutrientInfo, getStatusExplanation, RDA_EXPLAINER } = require("../rules/nutrientInfo");
 
 // Limit admin login attempts: since it's a single shared password with no
 // per-account lockout, this is the only thing standing between it and an
@@ -47,6 +48,7 @@ router.get("/", (req, res) => {
     errorMessage: null,
     oldInput: {},
     isAdmin: req.session.isAdmin || false,
+    RDA_EXPLAINER,
   });
 });
 
@@ -185,6 +187,9 @@ router.get("/result/:id", async (req, res) => {
       title: "Assessment Result",
       assessment,
       isAdmin: req.session.isAdmin || false,
+      getNutrientInfo,
+      getStatusExplanation,
+      RDA_EXPLAINER,
     });
   } catch (error) {
     console.error("Result page error:", error.message);
@@ -238,6 +243,8 @@ router.get("/nutrient/:id/:nutrientKey", async (req, res) => {
       assessment,
       nutrientData,
       recommendationData,
+      nutrientInfo: getNutrientInfo(nutrientKey),
+      statusExplanation: getStatusExplanation(nutrientData.status),
       isAdmin: req.session.isAdmin || false,
     });
   } catch (error) {

@@ -32,7 +32,7 @@ if (!process.env.SESSION_SECRET || !process.env.ADMIN_PASSWORD) {
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "insecure-dev-only-secret-change-me",
+    secret: process.env.SESSION_SECRET || "change-this-to-a-long-random-string",
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -42,6 +42,14 @@ app.use(
 );
 
 app.use("/", mainRoutes);
+
+// Catch-all 404 — must come after all real routes, since Express checks
+// routes in order and only reaches this if nothing above matched.
+app.use((req, res) => {
+  res.status(404).render("404", {
+    isAdmin: req.session ? req.session.isAdmin || false : false,
+  });
+});
 
 // Start server
 async function startServer() {
