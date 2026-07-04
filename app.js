@@ -1,5 +1,7 @@
 
 
+require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
@@ -20,9 +22,17 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 
+if (!process.env.SESSION_SECRET || !process.env.ADMIN_PASSWORD) {
+  console.warn(
+    "⚠️  SESSION_SECRET and/or ADMIN_PASSWORD are not set in your .env file — " +
+    "using insecure defaults. Copy .env.example to .env and set real values " +
+    "before deploying, especially if this repo is or will be public."
+  );
+}
+
 app.use(
   session({
-    secret: "nutrition_admin_secret_2026",
+    secret: process.env.SESSION_SECRET || "insecure-dev-only-secret-change-me",
     resave: false,
     saveUninitialized: false,
     cookie: {

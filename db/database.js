@@ -102,7 +102,7 @@ function saveAssessment(data) {
       data.bmr,
       data.dailyCalories,
       data.calorieRemark,
-      JSON.stringify(data.intakeComparison || {}),
+      JSON.stringify(data.calorieComparison || {}),
       JSON.stringify(data.nutrientResults || {}),
       JSON.stringify(data.scoringSummary || {}),
       JSON.stringify(data.recommendationSummary || {}),

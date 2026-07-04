@@ -3,7 +3,8 @@
 function getAgeGroup(age) {
   if (age >= 9 && age <= 13) return "9-13";
   if (age >= 14 && age <= 18) return "14-18";
-  return "19+";
+  if (age >= 19 && age <= 50) return "19-50";
+  return "51+";
 }
 
 function getReferenceSet(age, gender, calorieReference = 2000) {
@@ -67,7 +68,7 @@ function getReferenceSet(age, gender, calorieReference = 2000) {
         carbohydrates: 130,
       },
     },
-    "19+": {
+    "19-50": {
       male: {
         calories: calorieReference,
         protein: 56,
@@ -86,6 +87,34 @@ function getReferenceSet(age, gender, calorieReference = 2000) {
         protein: 46,
         iron: 18,
         calcium: 1000,
+        vitaminA: 700,
+        vitaminC: 75,
+        magnesium: 310,
+        zinc: 8,
+        fiber: 25,
+        fat: 70,
+        carbohydrates: 130,
+      },
+    },
+    "51+": {
+      male: {
+        calories: calorieReference,
+        protein: 56,
+        iron: 8,
+        calcium: 1000,
+        vitaminA: 900,
+        vitaminC: 90,
+        magnesium: 400,
+        zinc: 11,
+        fiber: 38,
+        fat: 70,
+        carbohydrates: 130,
+      },
+      female: {
+        calories: calorieReference,
+        protein: 46,
+        iron: 8,
+        calcium: 1200,
         vitaminA: 700,
         vitaminC: 75,
         magnesium: 310,

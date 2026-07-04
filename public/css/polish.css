@@ -216,3 +216,40 @@ select.form-input { cursor: pointer; }
 .rec-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .rec-card-title  { font-size: 14px; font-weight: 700; color: #0f172a; }
 .rec-food-list   { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+/* ── Scroll-reveal animations ────────────────────────────────
+   Driven by public/js/animations.js, which adds .visible to
+   these elements via IntersectionObserver as they enter the
+   viewport. Respects reduced-motion preferences. */
+.anim-fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.anim-fade-up.visible { opacity: 1; transform: translateY(0); }
+
+.anim-fade-in {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.anim-fade-in.visible { opacity: 1; }
+
+.anim-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.anim-scale.visible { opacity: 1; transform: scale(1); }
+
+/* nutrient-card already declares its own `transition` for hover;
+   merge both needs here so neither silently overrides the other */
+.nutrient-card.anim-fade-up {
+  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.18s ease;
+}
+.nutrient-card.anim-fade-up.visible:hover { transform: translateY(-2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up, .anim-fade-in, .anim-scale {
+    opacity: 1; transform: none; transition: none;
+  }
+}

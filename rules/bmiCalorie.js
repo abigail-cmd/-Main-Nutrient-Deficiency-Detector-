@@ -229,13 +229,13 @@ function getFullBMIAndCalorieData(data) {
   const { bmr, dailyCalories, methodUsed } = calculateCalories(validated);
   const calorieRemark = getCalorieRemark(dailyCalories);
 
-  let intakeComparison = null;
+  let calorieComparison = null;
 
   if (
     data.currentCalorieIntake !== undefined &&
     data.currentCalorieIntake !== ""
   ) {
-    intakeComparison = compareCalorieIntake(
+    calorieComparison = compareCalorieIntake(
       data.currentCalorieIntake,
       dailyCalories
     );
@@ -247,7 +247,7 @@ function getFullBMIAndCalorieData(data) {
     bmr,
     dailyCalories,
     calorieRemark,
-    intakeComparison,
+    calorieComparison,
     methodUsed,
   };
 }

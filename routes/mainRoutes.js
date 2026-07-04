@@ -1,6 +1,7 @@
 // routes/mainRoutes.js
 
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const router = express.Router();
 
 const { getFullBMIAndCalorieData } = require("../rules/bmiCalorie");
@@ -15,6 +16,17 @@ const {
 } = require("../db/database");
 const { generateAssessmentPdf } = require("../utils/pdfReport");
 const { requireAdminAccess } = require("../middleware/auth");
+
+// Limit admin login attempts: since it's a single shared password with no
+// per-account lockout, this is the only thing standing between it and an
+// unlimited brute-force guess. 10 attempts per 15 minutes per IP.
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many login attempts. Please try again in 15 minutes.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Helper: format activity level for display
 function formatActivityLevel(raw) {
@@ -47,8 +59,8 @@ router.get("/admin/login", (req, res) => {
 });
 
 // Admin login submit
-router.post("/admin/login", (req, res) => {
-  const adminPassword = "abiadmin123";
+router.post("/admin/login", adminLoginLimiter, (req, res) => {
+  const adminPassword = process.env.ADMIN_PASSWORD || "abiadmin123";
   if (req.body.password === adminPassword) {
     req.session.isAdmin = true;
     return res.redirect("/dashboard");
@@ -72,6 +84,27 @@ router.post("/analyze", async (req, res) => {
     const selectedNutrients = selectedRaw
       ? selectedRaw.split(",").map(s => s.trim()).filter(Boolean)
       : ["iron", "calcium", "vitaminA", "vitaminC", "protein"]; // default to focus 5
+
+    // ── Server-side validation gate ──────────────────────────────────────────
+    // The frontend blocks blank fields with JS, but that can be bypassed
+    // (JS disabled, devtools, or a direct POST). Re-check here so the
+    // backend never silently treats a missing/blank field as 0.
+    const REQUIRED_PERSONAL_FIELDS = ["fullName", "age", "gender", "activityLevel", "weight", "height", "currentCalorieIntake"];
+    const missingPersonal = REQUIRED_PERSONAL_FIELDS.filter(
+      f => req.body[f] === undefined || String(req.body[f]).trim() === ""
+    );
+    const missingNutrients = selectedNutrients.filter(
+      k => req.body[k] === undefined || String(req.body[k]).trim() === ""
+    );
+    if (missingPersonal.length > 0 || missingNutrients.length > 0) {
+      return res.status(400).render("index", {
+        title: "Nutritional Deficiency Detection System",
+        errorMessage: "All fields are required. Please complete every personal-information field and provide an intake value for each nutrient you selected.",
+        oldInput: req.body,
+        isAdmin: req.session.isAdmin || false,
+      });
+    }
+    // ──────────────────────────────────────────────────────────────────────
 
     const userInput = {
       fullName:             req.body.fullName,
@@ -127,7 +160,6 @@ router.post("/analyze", async (req, res) => {
       nutrientResults:      filteredResults,   // only selected nutrients stored
       scoringSummary,
       recommendationSummary,
-      intakeComparison:     bmiCalorieData.intakeComparison,
     };
 
     const savedResult = await saveAssessment(fullAssessment);

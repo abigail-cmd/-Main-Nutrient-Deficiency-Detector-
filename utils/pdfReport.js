@@ -294,7 +294,7 @@ function generateAssessmentPdf(res, assessment) {
 
   // Calorie card
   const calX = MARGIN + bmiCardW + 12;
-  const calorieData = assessment.calorieComparison || assessment.intakeComparison || {};
+  const calorieData = assessment.calorieComparison || {};
   doc.save()
      .roundedRect(calX, bmiCardY, bmiCardW, 80, 8)
      .fillColor(C.soft).fill()
