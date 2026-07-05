@@ -4,10 +4,18 @@ const { getNutrientInfo, RDA_EXPLAINER } = require("../rules/nutrientInfo");
 function generateAssessmentPdf(res, assessment) {
   const doc = new PDFDocument({ size: "A4", margin: 0, bufferPages: true });
 
-  const date = new Date().toISOString().slice(0, 10);
-  const safeName = (assessment.fullName || "report")
-    .trim().replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "").toLowerCase();
-  const fileName = `NutriDetect-Report_${safeName}_${date}.pdf`;
+  // Use the date the assessment was actually taken, not today's download
+  // date — otherwise every report downloaded today would show today's
+  // date regardless of when the assessment happened.
+  const date = assessment.createdAt
+    ? new Date(assessment.createdAt).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
+
+  // Only strip characters that are actually illegal in filenames
+  // (Windows/Mac/Linux all disallow / \ : * ? " < > |) — everything else,
+  // including spaces, is safe to keep for a readable name.
+  const displayName = (assessment.fullName || "Patient").trim().replace(/[\/\\:*?"<>|]/g, "");
+  const fileName = `${displayName} NutriDetect Report Analysis (${date}).pdf`;
 
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
